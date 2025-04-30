@@ -10,15 +10,28 @@ const TripResult = () => {
   const [isSaved, setIsSaved] = useState(false);
 
   const saveTrip = async (tripData) => {
-    if (isSaved) return;
-    setIsSaved(true);
-    const docId = Date.now().toString();
-    const user = JSON.parse(localStorage.getItem("user"));
-    await setDoc(doc(db, `aitrip/${user.email}/trips/${docId}`), {
-      tripData,
-      id: docId,
-    });
+    if (isSaved) return; 
+    setIsSaved(true); 
+  
+    const docId = Date.now().toString(); 
+    const user = JSON.parse(localStorage.getItem("user")); 
+  
+    if (!user || !user.email) {
+      console.error("User is not authenticated or email missing");
+      return;
+    }
+  
+    try {
+      await setDoc(doc(db, `aitrip/${user.email}/trips/${docId}`), {
+        tripData,
+        id: docId, 
+      });
+      console.log("Trip saved successfully!");
+    } catch (err) {
+      console.error("Error saving trip:", err);
+    }
   };
+  
 
   if (tripData?.error === "Failed to generate trip details.") {
     return (
@@ -36,27 +49,43 @@ const TripResult = () => {
           onClick={() => saveTrip(tripData)}
           disabled={isSaved}
           className={`px-6 py-2 text-white font-semibold rounded-lg transition-all duration-200 
-            ${isSaved ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"}`}
+            ${
+              isSaved
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
+            }`}
         />
       </div>
 
       <div className="sm:px-10 md:px-32 lg:px-56 xl:px-72 px-5 mt-10 pb-20">
-        <h2 className="text-4xl font-extrabold text-blue-800 mb-2">🗺️ Your Trip Plan</h2>
+        <h2 className="text-4xl font-extrabold text-blue-800 mb-2">
+          🗺️ Your Trip Plan
+        </h2>
         <p className="text-lg text-gray-600 mb-6">
-          <span className="font-medium">Here's your AI-generated itinerary!</span>
+          <span className="font-medium">
+            Here's your AI-generated itinerary!
+          </span>
         </p>
 
         <div className="bg-white p-8 rounded-3xl shadow-2xl transition-all">
           {tripData ? (
             <div className="trip-result space-y-10">
-              <div className="trip-overview bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-xl shadow">
-                {["destination", "duration", "focus", "travelers"].map((key) => (
-                  <p key={key} className="text-xl text-gray-700 my-2">
-                    <span className="font-bold text-blue-900 capitalize">{key}:</span>{" "}
-                    {tripData[key]}
-                  </p>
-                ))}
+              <div className="trip-overview bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-xl shadow w-full max-w-full overflow-hidden">
+                {["destination", "duration", "focus", "travelers"].map(
+                  (key) => (
+                    <p
+                      key={key}
+                      className="text-base sm:text-lg md:text-xl text-gray-700 my-2 break-words"
+                    >
+                      <span className="font-bold text-blue-900 capitalize">
+                        {key}:
+                      </span>{" "}
+                      {tripData[key]}
+                    </p>
+                  )
+                )}
               </div>
+
               <div className="hotels">
                 <h4 className="font-bold text-3xl text-center bg-gradient-to-r from-pink-200 to-yellow-100 text-gray-900 p-3 rounded-lg shadow mb-4">
                   🏨 Hotels
@@ -67,11 +96,17 @@ const TripResult = () => {
                       key={hotel.name}
                       className="bg-white border border-gray-100 rounded-xl shadow-md p-5 transform transition duration-300 hover:scale-105 hover:shadow-2xl"
                     >
-                      <p className="text-lg font-bold text-blue-700 mt-3">{hotel.name}</p>
+                      <p className="text-lg font-bold text-blue-700 mt-3">
+                        {hotel.name}
+                      </p>
                       <p className="text-sm text-gray-500">{hotel.location}</p>
                       <div className="flex justify-between items-center text-sm mt-2">
-                        <span className="text-green-600 font-bold">{hotel.pricing}</span>
-                        <span className="text-yellow-500 font-bold">{hotel.rating} ★</span>
+                        <span className="text-green-600 font-bold">
+                          {hotel.pricing}
+                        </span>
+                        <span className="text-yellow-500 font-bold">
+                          {hotel.rating} ★
+                        </span>
                       </div>
                       {hotel.website && (
                         <a
@@ -102,34 +137,39 @@ const TripResult = () => {
                         {plan.theme} - Day {plan.day}
                       </h4>
 
-                      {["morning", "afternoon", "evening", "night"].map((timeOfDay) => (
-                        <div
-                          key={timeOfDay}
-                          className="mt-4 p-4 bg-white rounded-md shadow transition hover:shadow-lg"
-                        >
-                          <h5 className="text-lg font-semibold text-gray-800 capitalize">
-                            {timeOfDay}
-                          </h5>
-                          <div className="grid grid-cols-2 gap-2 mt-2">
-                            <span className="text-blue-700 font-medium">
-                              {plan[timeOfDay].activity}
-                            </span>
-                            <span className="text-gray-500">
-                              {plan[timeOfDay].time} • {plan[timeOfDay].duration}
-                            </span>
+                      {["morning", "afternoon", "evening", "night"].map(
+                        (timeOfDay) => (
+                          <div
+                            key={timeOfDay}
+                            className="mt-4 p-4 bg-white rounded-md shadow transition hover:shadow-lg"
+                          >
+                            <h5 className="text-lg font-semibold text-gray-800 capitalize">
+                              {timeOfDay}
+                            </h5>
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                              <span className="text-blue-700 font-medium">
+                                {plan[timeOfDay].activity}
+                              </span>
+                              <span className="text-gray-500">
+                                {plan[timeOfDay].time} •{" "}
+                                {plan[timeOfDay].duration}
+                              </span>
+                            </div>
+                            <p className="text-gray-700 mt-2 text-sm">
+                              {plan[timeOfDay].description}
+                            </p>
                           </div>
-                          <p className="text-gray-700 mt-2 text-sm">
-                            {plan[timeOfDay].description}
-                          </p>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-lg text-gray-500 text-center mt-10">Loading trip details...</p>
+            <p className="text-lg text-gray-500 text-center mt-10">
+              Loading trip details...
+            </p>
           )}
         </div>
       </div>
