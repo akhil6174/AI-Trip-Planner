@@ -1,27 +1,30 @@
-import React, { useState } from 'react';
-import Button from './ui/Button';
-import { useGoogleLogin } from '@react-oauth/google';
-import { useNavigate } from 'react-router-dom';
-import { HiMenu, HiX } from 'react-icons/hi';
+import React, { useState } from "react";
+import Button from "./ui/Button";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
+import { HiMenu, HiX } from "react-icons/hi";
 
 export default function Header() {
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  console.log(user.picture);
   const fetchSavedTrips = () => {
     setMobileMenuOpen(false);
-    navigate('/saved-trips');
+    navigate("/saved-trips");
   };
 
   const login = useGoogleLogin({
     onSuccess: async (googleResp) => {
       try {
-        const userInfoResp = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: {
-            Authorization: `Bearer ${googleResp.access_token}`,
-          },
-        });
+        const userInfoResp = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${googleResp.access_token}`,
+            },
+          }
+        );
         const userInfo = await userInfoResp.json();
         localStorage.setItem("user", JSON.stringify(userInfo));
         window.location.reload();
@@ -36,7 +39,7 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate('/');
+    navigate("/");
     window.location.reload();
   };
 
@@ -46,9 +49,12 @@ export default function Header() {
         src="/aitriplogo.svg"
         className="w-12 h-12 cursor-pointer"
         alt="AI Trip Logo"
-        onClick={() => navigate('/')}
+        onClick={() => navigate("/")}
       />
-      <div className="sm:hidden text-3xl cursor-pointer" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+      <div
+        className="sm:hidden text-3xl cursor-pointer"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+      >
         {mobileMenuOpen ? <HiX /> : <HiMenu />}
       </div>
       <div className="hidden sm:flex items-center gap-6">
@@ -72,9 +78,9 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <img
               src={user.picture || "/profile_logo.svg"}
-              alt="User"
               className="w-10 h-10 rounded-full border"
             />
+
             <p className="text-gray-700 font-medium text-sm">{user.name}</p>
             <button
               onClick={handleLogout}
