@@ -8,7 +8,6 @@ export default function Header() {
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  console.log(user.picture);
   const fetchSavedTrips = () => {
     setMobileMenuOpen(false);
     navigate("/saved-trips");
@@ -40,9 +39,11 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/");
-    window.location.reload();
   };
-
+  const moveToCreateTrip=()=>{
+    navigate("/create-trip")
+  }
+    
   return (
     <header className="p-4 px-6 shadow-md flex justify-between items-center bg-[rgb(245,245,245)] m-1.5">
       <img
@@ -94,6 +95,12 @@ export default function Header() {
 
       {mobileMenuOpen && (
         <div className="absolute top-16 left-0 right-0 bg-white border-t border-gray-200 shadow-md p-6 flex flex-col items-center sm:hidden z-50 rounded-lg">
+          <p
+              className="font-semibold text-base text-gray-700 hover:text-blue-600 cursor-pointer mb-4 mr-6 transition-all duration-300 ease-in-out transform hover:scale-105"
+              onClick={moveToCreateTrip}
+            >
+              Generate Trip
+            </p>
           {user && (
             <p
               className="font-semibold text-base text-gray-700 hover:text-blue-600 cursor-pointer mb-4 mr-6 transition-all duration-300 ease-in-out transform hover:scale-105"
