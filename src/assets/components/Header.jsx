@@ -59,6 +59,12 @@ export default function Header() {
         {mobileMenuOpen ? <HiX /> : <HiMenu />}
       </div>
       <div className="hidden sm:flex items-center gap-6">
+        <p
+              className="font-semibold text-base text-gray-700 hover:text-blue-600 cursor-pointer mb-4 mr-6 transition-all duration-300 ease-in-out transform hover:scale-105"
+              onClick={moveToCreateTrip}
+          >
+             Generate Trip
+          </p>
         {user && (
           <p
             className="font-semibold text-base text-gray-700 hover:text-blue-600 hover:border hover:border-black hover:rounded-lg hover:px-3 hover:py-2 transition-all duration-300 cursor-pointer"
